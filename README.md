@@ -176,34 +176,20 @@ color can be changed in Settings with six presets (Yellow is the default). A Sty
 softer than the original mockup.
 
 <p align="center">
-  <img src="docs/mockups/pilotlight-mockup-desktop-glow-1600x1000.png"
-       alt="PilotLight's yellow screen glow and Ember in the working pill, on a Mac desktop."
-       width="1600" />
-</p>
-
-<!-- Product screenshots (uncomment when the files are in docs/images/screenshots/):
-<p align="center">
-  <img src="docs/images/screenshots/brandy-glow-desktop.png"
-       alt="PilotLight's yellow screen glow on a Mac desktop."
-       width="1600" />
+  <img src="docs/images/screenshots/soft-glow-desktop.png"
+       alt="PilotLight's soft yellow glow over a Terminal window, with Ember in the working pill."
+       width="960" />
 </p>
 <p align="center">
-  <img src="docs/images/screenshots/brandy-ember-pill.png"
-       alt="Ember in the working pill." />
+  <img src="docs/images/screenshots/settings.png"
+       alt="PilotLight Settings."
+       width="960" />
 </p>
 <p align="center">
-  <img src="docs/images/screenshots/hype-menu.png"
-       alt="The PilotLight menu-bar menu." />
+  <img src="docs/images/screenshots/quick-start.png"
+       alt="The PilotLight Quick Start walkthrough."
+       width="960" />
 </p>
-<p align="center">
-  <img src="docs/images/screenshots/hype-settings.png"
-       alt="PilotLight Settings." />
-</p>
-<p align="center">
-  <img src="docs/images/screenshots/hype-quickstart.png"
-       alt="The PilotLight Quick Start walkthrough." />
-</p>
--->
 
 ## License
 
