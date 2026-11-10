@@ -28,6 +28,7 @@ swiftc -O -parse-as-library \
   -sdk "$SDK" \
   -framework AppKit \
   -framework QuartzCore \
+  -framework ServiceManagement \
   -o "$APP/Contents/MacOS/PilotLight" \
   "$ROOT"/Sources/PilotLight/*.swift
 
@@ -48,6 +49,11 @@ for f in MenuIcon.png "MenuIcon@2x.png"; do
     cp "$ROOT/Resources/$f" "$APP/Contents/Resources/$f"
   fi
 done
+
+# Bundled CLI, copied into ~/bin on first launch (never outside $HOME).
+mkdir -p "$APP/Contents/Helpers"
+cp "$ROOT/Tools/pilotlight" "$APP/Contents/Helpers/pilotlight"
+chmod 755 "$APP/Contents/Helpers/pilotlight"
 
 codesign --force --deep --sign - "$APP"
 echo "Built $APP"

@@ -9,7 +9,7 @@
 <p align="center">See when your Mac is busy with a bot.</p>
 
 <p align="center">
-  <a href="https://github.com/bashcrandicoot/PilotLight/releases/download/v1.0/PilotLight-1.0.dmg"><strong>Download PilotLight 1.0</strong></a>
+  <a href="https://github.com/bashcrandicoot/PilotLight/releases/download/v1.0.1/PilotLight-1.0.1.dmg"><strong>Download PilotLight 1.0.1</strong></a>
 </p>
 
 <p align="center">
@@ -46,9 +46,9 @@ you can give an agent.
 
 ## Install
 
-The usual way is the [macOS disk image](https://github.com/bashcrandicoot/PilotLight/releases/download/v1.0/PilotLight-1.0.dmg): drag PilotLight to Applications, then right-click the app and choose **Open** the first time (or use **System Settings → Privacy & Security → Open Anyway**). The DMG does not install the command-line tool or a login item.
+The usual way is the [macOS disk image](https://github.com/bashcrandicoot/PilotLight/releases/download/v1.0.1/PilotLight-1.0.1.dmg): drag PilotLight to Applications, then right-click the app and choose **Open** the first time (or use **System Settings → Privacy & Security → Open Anyway**). On first launch the app installs the bot command at `~/bin/pilotlight` (and a `~/bin/grok-border` alias) and offers to open at login. It never uses `sudo` and never writes outside your home folder. If macOS asks you to allow the login item, confirm it in **System Settings → Login Items**. You can also turn both of these on or off later in Settings.
 
-To build from source, or to install the CLI (`~/bin/pilotlight`) and a LaunchAgent that starts the app at login, from a checkout of this repository:
+To build from source, from a checkout of this repository:
 
 ```bash
 ./Scripts/build.sh

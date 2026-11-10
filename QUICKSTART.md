@@ -13,8 +13,18 @@ automatically again. You can open it any time from the menu bar under
 
 ## 1. Install
 
-A DMG is coming later. For now, install from source. You'll need the Xcode
-Command Line Tools (run `xcode-select --install` if you don't have them).
+The usual way is to download [PilotLight 1.0.1](https://github.com/bashcrandicoot/PilotLight/releases/download/v1.0.1/PilotLight-1.0.1.dmg),
+drag the app to Applications, then right-click it and choose **Open** the first
+time (or use **System Settings → Privacy & Security → Open Anyway**).
+
+On first launch the app installs the bot command at `~/bin/pilotlight`
+(and a `~/bin/grok-border` alias) and offers to open at login. It never uses
+`sudo` and never writes outside your home folder. If macOS asks you to allow
+the login item, confirm it in **System Settings → Login Items**. Both can be
+turned on or off later in Settings.
+
+To build from source, you'll need the Xcode Command Line Tools (run
+`xcode-select --install` if you don't have them):
 
 ```bash
 git clone https://github.com/bashcrandicoot/PilotLight.git
@@ -23,11 +33,9 @@ cd PilotLight
 ./Scripts/install.sh
 ```
 
-The installer doesn't use `sudo`. It puts:
-
-- the app in `~/Applications/PilotLight.app`
-- the command at `~/bin/pilotlight` (`~/bin/grok-border` does the same thing)
-- a login item, so PilotLight starts every time you log in
+The source installer also doesn't use `sudo`. It puts the app in
+`~/Applications/PilotLight.app`, the command at `~/bin/pilotlight`, and a
+login item so PilotLight starts when you log in.
 
 When it finishes, Ember (a small terracotta bun) shows up in your menu bar. The border
 stays off until something turns it on.

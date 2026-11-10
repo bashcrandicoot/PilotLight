@@ -63,7 +63,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, StatusItemHosting {
             }
         }
         watcher.start()
-        if Preferences.shouldShowWelcomeOnLaunch {
+        // Capture first-launch before the walkthrough marks welcomeSeen.
+        let isFirstLaunch = Preferences.shouldShowWelcomeOnLaunch
+        FirstRunSetup.applyOnLaunch(isFirstLaunch: isFirstLaunch)
+        if isFirstLaunch {
             WelcomeWindowController.shared.present(firstLaunch: true)
         }
         log.info("PilotLight ready")

@@ -44,6 +44,11 @@ final class SettingsWindowController: NSWindowController {
     private let previewButton = NSButton(title: "Preview", target: nil, action: nil)
     private let resetButton = NSButton(title: "Reset", target: nil, action: nil)
     private let tipJarButton = NSButton(title: "Tip Jar", target: nil, action: nil)
+    private let cliSwitch = NSButton(checkboxWithTitle: "Bot command (~/bin/pilotlight)", target: nil, action: nil)
+    private let cliStatus = NSTextField(labelWithString: "")
+    private let loginSwitch = NSButton(checkboxWithTitle: "Open at login", target: nil, action: nil)
+    private let loginStatus = NSTextField(labelWithString: "")
+    private let loginItemsButton = NSButton(title: "Open Login Items…", target: nil, action: nil)
     private var didCenterOnce = false
     private var previewDebounce: DispatchWorkItem?
     private var showingThickness = false
@@ -228,6 +233,44 @@ final class SettingsWindowController: NSWindowController {
         intensityLabels.addArrangedSubview(secondary("Stronger"))
         stack.addArrangedSubview(intensityLabels)
 
+        let setupCaption = caption("Startup")
+        stack.addArrangedSubview(setupCaption)
+        stack.setCustomSpacing(8, after: setupCaption)
+
+        loginSwitch.target = self
+        loginSwitch.action = #selector(loginToggled)
+        loginSwitch.translatesAutoresizingMaskIntoConstraints = false
+        stack.addArrangedSubview(loginSwitch)
+        stack.setCustomSpacing(4, after: loginSwitch)
+
+        loginStatus.font = .systemFont(ofSize: 11)
+        loginStatus.textColor = .secondaryLabelColor
+        loginStatus.lineBreakMode = .byWordWrapping
+        loginStatus.maximumNumberOfLines = 2
+        loginStatus.translatesAutoresizingMaskIntoConstraints = false
+        stack.addArrangedSubview(loginStatus)
+        stack.setCustomSpacing(6, after: loginStatus)
+
+        loginItemsButton.bezelStyle = .rounded
+        loginItemsButton.setButtonType(.momentaryPushIn)
+        loginItemsButton.target = self
+        loginItemsButton.action = #selector(openLoginItems)
+        loginItemsButton.translatesAutoresizingMaskIntoConstraints = false
+        loginItemsButton.isHidden = true
+        stack.addArrangedSubview(loginItemsButton)
+
+        cliSwitch.target = self
+        cliSwitch.action = #selector(cliToggled)
+        cliSwitch.translatesAutoresizingMaskIntoConstraints = false
+        stack.addArrangedSubview(cliSwitch)
+        stack.setCustomSpacing(4, after: cliSwitch)
+
+        cliStatus.font = .systemFont(ofSize: 11)
+        cliStatus.textColor = .secondaryLabelColor
+        cliStatus.lineBreakMode = .byTruncatingMiddle
+        cliStatus.translatesAutoresizingMaskIntoConstraints = false
+        stack.addArrangedSubview(cliStatus)
+
         tipJarButton.title = "Tip Jar"
         tipJarButton.target = self
         tipJarButton.action = #selector(openTipJar)
@@ -287,6 +330,10 @@ final class SettingsWindowController: NSWindowController {
             intensityHeader.widthAnchor.constraint(equalTo: styleControl.widthAnchor),
             slider.widthAnchor.constraint(equalTo: styleControl.widthAnchor),
             intensityLabels.widthAnchor.constraint(equalTo: styleControl.widthAnchor),
+            loginSwitch.widthAnchor.constraint(equalTo: styleControl.widthAnchor),
+            loginStatus.widthAnchor.constraint(equalTo: styleControl.widthAnchor),
+            cliSwitch.widthAnchor.constraint(equalTo: styleControl.widthAnchor),
+            cliStatus.widthAnchor.constraint(equalTo: styleControl.widthAnchor),
             buttons.widthAnchor.constraint(equalTo: styleControl.widthAnchor),
 
             root.widthAnchor.constraint(equalToConstant: Self.contentWidth)
@@ -338,9 +385,41 @@ final class SettingsWindowController: NSWindowController {
         updateThicknessLabel()
         let showThickness = (Preferences.glowStyle == .pilotLine)
         thicknessSection.isHidden = !showThickness
+        refreshSetupStatus()
         if showThickness != showingThickness {
             showingThickness = showThickness
             refitWindow()
+        } else {
+            refitWindow()
+        }
+    }
+
+    private func refreshSetupStatus() {
+        let cliOn = FirstRunSetup.cliIsInstalled
+        cliSwitch.state = cliOn ? .on : .off
+        if cliOn && FirstRunSetup.cliIsCurrent {
+            cliStatus.stringValue = "Installed at ~/bin/pilotlight"
+        } else if cliOn {
+            cliStatus.stringValue = "Installed, but an update is available"
+        } else {
+            cliStatus.stringValue = "Not installed"
+        }
+
+        let status = FirstRunSetup.loginStatus()
+        let legacy = FirstRunSetup.legacyLaunchAgentPresent
+        loginSwitch.state = (status == .enabled || legacy) ? .on : .off
+        loginItemsButton.isHidden = (status != .requiresApproval)
+        switch status {
+        case .enabled:
+            loginStatus.stringValue = "On — PilotLight starts when you log in"
+        case .requiresApproval:
+            loginStatus.stringValue = "Allow PilotLight in System Settings → Login Items"
+        case .notRegistered, .notFound:
+            if legacy {
+                loginStatus.stringValue = "On — a login item is already installed"
+            } else {
+                loginStatus.stringValue = "Off"
+            }
         }
     }
 
@@ -412,6 +491,38 @@ final class SettingsWindowController: NSWindowController {
 
     @objc private func openTipJar() {
         NSWorkspace.shared.open(Constants.tipJarURL)
+    }
+
+    @objc private func cliToggled() {
+        do {
+            if cliSwitch.state == .on {
+                try FirstRunSetup.installCLI()
+            } else {
+                try FirstRunSetup.uninstallCLI()
+            }
+        } catch {
+            cliStatus.stringValue = "Could not update the bot command"
+        }
+        refreshSetupStatus()
+        refitWindow()
+    }
+
+    @objc private func loginToggled() {
+        if loginSwitch.state == .on {
+            let decision = FirstRunPolicy.loginUserEnableDecision(status: FirstRunSetup.loginStatus())
+            if decision == .register {
+                FirstRunSetup.registerLoginItem()
+            }
+            // If approval is pending, leave it to System Settings — never force.
+        } else {
+            FirstRunSetup.unregisterLoginItem()
+        }
+        refreshSetupStatus()
+        refitWindow()
+    }
+
+    @objc private func openLoginItems() {
+        FirstRunSetup.openLoginItemsSettings()
     }
 }
 
