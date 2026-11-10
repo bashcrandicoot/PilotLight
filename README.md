@@ -9,6 +9,17 @@
 <p align="center">See when your Mac is busy with a bot.</p>
 
 <p align="center">
+  <a href="https://github.com/bashcrandicoot/PilotLight/releases/download/v1.0/PilotLight-1.0.dmg"><strong>Download PilotLight 1.0</strong></a>
+</p>
+
+<p align="center">
+  The first time you open the app, macOS will warn that it is unsigned.
+  Right-click the app and choose <strong>Open</strong>, or go to
+  <strong>System Settings → Privacy &amp; Security</strong> and click
+  <strong>Open Anyway</strong>.
+</p>
+
+<p align="center">
   <img src="docs/github/pilotlight-github-banner-1280x400.png"
        srcset="docs/github/pilotlight-github-banner-2560x800.png 2x"
        alt="PilotLight — See when your Mac is busy with a bot."
@@ -35,7 +46,9 @@ you can give an agent.
 
 ## Install
 
-From a checkout of this repository:
+The usual way is the [macOS disk image](https://github.com/bashcrandicoot/PilotLight/releases/download/v1.0/PilotLight-1.0.dmg): drag PilotLight to Applications, then right-click the app and choose **Open** the first time (or use **System Settings → Privacy & Security → Open Anyway**). The DMG does not install the command-line tool or a login item.
+
+To build from source, or to install the CLI (`~/bin/pilotlight`) and a LaunchAgent that starts the app at login, from a checkout of this repository:
 
 ```bash
 ./Scripts/build.sh
