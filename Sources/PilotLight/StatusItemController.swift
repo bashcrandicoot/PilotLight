@@ -43,7 +43,7 @@ final class StatusItemController: NSObject {
         quickStartItem.target = self
         settingsItem.target = self
 
-        // Label is exactly "Tip Jar": no ellipsis, no "Ko-fi" (Sebastian, 3 Nov).
+        // Label is exactly "Tip Jar": no ellipsis, no "Ko-fi".
         let tipJarItem = NSMenuItem(title: "Tip Jar", action: #selector(openTipJar(_:)), keyEquivalent: "")
         tipJarItem.target = self
 
@@ -110,11 +110,16 @@ final class StatusItemController: NSObject {
     }
 
     @objc private func showQuickStart(_ sender: Any?) {
-        host?.showQuickStart()
+        // Wait until the status-item menu has closed so the panel can key.
+        DispatchQueue.main.async { [weak self] in
+            self?.host?.showQuickStart()
+        }
     }
 
     @objc private func showSettings(_ sender: Any?) {
-        host?.showSettings()
+        DispatchQueue.main.async { [weak self] in
+            self?.host?.showSettings()
+        }
     }
 
     @objc private func openTipJar(_ sender: Any?) {

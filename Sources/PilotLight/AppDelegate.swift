@@ -63,7 +63,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, StatusItemHosting {
             }
         }
         watcher.start()
-        if !Preferences.welcomeSeen {
+        if Preferences.shouldShowWelcomeOnLaunch {
             WelcomeWindowController.shared.present(firstLaunch: true)
         }
         log.info("PilotLight ready")
@@ -95,7 +95,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, StatusItemHosting {
     }
 
     func showQuickStart() {
-        // Menu reopen: start at page 1 without activating the app over the user.
         WelcomeWindowController.shared.present(firstLaunch: false)
     }
 

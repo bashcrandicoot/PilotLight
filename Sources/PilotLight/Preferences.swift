@@ -115,4 +115,16 @@ enum Preferences {
         get { defaults.bool(forKey: welcomeSeenKey) }
         set { defaults.set(newValue, forKey: welcomeSeenKey) }
     }
+
+    /// Auto-show Quick Start only when the walkthrough has never been presented.
+    static var shouldShowWelcomeOnLaunch: Bool {
+        WelcomeFlag(seen: welcomeSeen).shouldShowOnLaunch
+    }
+
+    /// Call the moment the Quick Start window is shown.
+    static func markWelcomeShown() {
+        var flag = WelcomeFlag(seen: welcomeSeen)
+        flag.markShown()
+        welcomeSeen = flag.seen
+    }
 }

@@ -15,6 +15,16 @@ func activateApp() {
     }
 }
 
+/// Bring a titled panel above other apps. An LSUIElement accessory app
+/// does not become key just from `makeKeyAndOrderFront`; activate first,
+/// then order the window front regardless of who was active.
+func bringPanelForward(_ window: NSWindow) {
+    window.level = .normal
+    activateApp()
+    window.makeKeyAndOrderFront(nil)
+    window.orderFrontRegardless()
+}
+
 /// Menu-bar Settings: style, one-click glow color, and intensity.
 @MainActor
 final class SettingsWindowController: NSWindowController {
@@ -76,8 +86,7 @@ final class SettingsWindowController: NSWindowController {
             }
         }
         refitWindow()
-        window.makeKeyAndOrderFront(nil)
-        activateApp()
+        bringPanelForward(window)
     }
 
     private func buildContent() -> NSView {
@@ -247,8 +256,7 @@ final class SettingsWindowController: NSWindowController {
         buttons.distribution = .fill
         buttons.translatesAutoresizingMaskIntoConstraints = false
         // Tip Jar + Reset on the left, Preview (default) on the right.
-        // Lodge Settings only has a text link in its footer; Sebastian asked
-        // for a real push button here, styled like Reset, with no symbol.
+        // Tip Jar is a real push button, styled like Reset, with no symbol.
         let leading = NSStackView(views: [tipJarButton, resetButton])
         leading.orientation = .horizontal
         leading.alignment = .centerY

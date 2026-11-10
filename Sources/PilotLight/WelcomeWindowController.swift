@@ -52,17 +52,17 @@ final class WelcomeWindowController: NSWindowController, NSWindowDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// - Parameter firstLaunch: When true, the window is brought forward and the
-    ///   app is activated — expected for a new user. A menu reopen shows the
-    ///   window without activating the app over whatever the user was doing.
-    func present(firstLaunch: Bool) {
+    /// Shows the walkthrough at page 1, in front of other apps, and marks
+    /// `welcomeSeen` immediately so it never auto-opens again.
+    /// - Parameter firstLaunch: Reserved for the first-run call site; menu
+    ///   and first launch both raise the window the same way (an accessory
+    ///   app otherwise stays behind whatever the user was in).
+    func present(firstLaunch _: Bool) {
         showPage(.welcome, animated: false)
         guard let window else { return }
         window.center()
-        window.makeKeyAndOrderFront(nil)
-        if firstLaunch {
-            activateApp()
-        }
+        bringPanelForward(window)
+        Preferences.markWelcomeShown()
     }
 
     func windowWillClose(_ notification: Notification) {

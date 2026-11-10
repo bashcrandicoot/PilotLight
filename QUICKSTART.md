@@ -6,9 +6,10 @@ Your clicks, scrolling and typing pass straight through it.
 
 It's free and open source (MIT). You'll need macOS 13 or later.
 
-On first launch, PilotLight opens a short Quick Start walkthrough. You can
-open it again from the menu bar under **Quick Start…**. Finishing or closing
-the walkthrough marks it as seen, so it doesn't appear on the next launch.
+On first launch, PilotLight opens a short Quick Start walkthrough. The
+window is marked as seen as soon as it appears, so it does not open
+automatically again. You can open it any time from the menu bar under
+**Quick Start…**.
 
 ## 1. Install
 
