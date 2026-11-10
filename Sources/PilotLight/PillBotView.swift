@@ -3,7 +3,7 @@ import QuartzCore
 
 /// Ember, the animated terracotta bun in the working-border pill.
 ///
-/// Drawn from Brandy's art spec (union of ellipses, white capsule eyes). The 2.4 s loop is a bob or squash,
+/// Drawn from Brandy's refined bun (tighter three-lobe silhouette, white capsule eyes). The 2.4 s loop is a bob or squash,
 /// a blink, then a look left and right. The static cream robot is gone.
 final class PillBotView: NSView {
     private var animating = false
@@ -123,18 +123,20 @@ enum EmberBot {
     /// Frozen happy pose (peak of the first hop) when Reduce Motion is on.
     static let happyStillTime: TimeInterval = 0.3
 
-    // Body ellipses as (cx, cy, rx, ry) in viewBox units.
+    // Refined bun (Brandy's ember-character-refined-600 master):
+    // tighter side lobes, fuller top, rounder base. (cx, cy, rx, ry) in viewBox units.
     static let lobes: [(CGFloat, CGFloat, CGFloat, CGFloat)] = [
-        (20.0, 34.5, 16.2, 16.2),
-        (44.0, 34.5, 16.2, 16.2),
-        (32.0, 21.0, 15.2, 15.2),
-        (32.0, 38.5, 21.5, 15.5)
+        (21.4, 33.4, 14.6, 15.2),
+        (42.6, 33.4, 14.6, 15.2),
+        (32.0, 18.8, 16.4, 16.0),
+        (32.0, 36.8, 18.0, 16.6)
     ]
 
-    static let eyeCenters = [CGPoint(x: 25.0, y: 33.0), CGPoint(x: 39.0, y: 33.0)]
-    static let eyeSize = CGSize(width: 7.4, height: 15.8)
+    // Eye centres at 32 ± (gap/2 + width/2) = 24.7 and 39.3, y 32.4.
+    static let eyeCenters = [CGPoint(x: 24.7, y: 32.4), CGPoint(x: 39.3, y: 32.4)]
+    static let eyeSize = CGSize(width: 8.4, height: 16.2)
     static let eyeTilt: CGFloat = 10 * CGFloat.pi / 180
-    static let squashAnchor = CGPoint(x: 32.0, y: 54.0)
+    static let squashAnchor = CGPoint(x: 32.0, y: 53.4)
 
     struct Pose {
         var bobY: CGFloat
@@ -248,7 +250,7 @@ enum EmberBot {
         ctx.scaleBy(x: unit, y: unit)
         ctx.translateBy(x: pad, y: pad)
 
-        // Bob / squash / tilt on #bot, anchored at the body bottom centre (32, 54).
+        // Bob / squash / tilt on #bot, anchored at the body bottom centre (32, 53.4).
         ctx.translateBy(x: 0, y: pose.bobY)
         ctx.translateBy(x: squashAnchor.x, y: squashAnchor.y)
         ctx.rotate(by: pose.tilt)

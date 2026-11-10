@@ -559,6 +559,7 @@ def main() -> None:
         ("quickstart-p4.png", 3, False),
         ("quickstart-p5.png", 4, False),
         ("quickstart-p6-light.png", 5, False),
+        ("quickstart-p6-v2.png", 5, False),
         ("quickstart-p1-dark.png", 0, True),
         ("quickstart-p3-dark.png", 2, True),
         ("quickstart-p6-dark.png", 5, True),

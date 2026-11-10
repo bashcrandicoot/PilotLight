@@ -20,9 +20,13 @@ import cairosvg
 ROOT = Path(__file__).resolve().parents[1]
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from asset_paths import ember_svg
-
-SVG_SRC = ember_svg()
+from ember_geometry import (
+    LOBES,
+    SQUASH_ANCHOR,
+    body_markup,
+    eye_centers,
+    eye_markup,
+)
 OUT = ROOT / "docs/images/ember.gif"
 FRAME_DIR = Path("/tmp/ember-gif-frames")
 
@@ -31,7 +35,7 @@ PAD = 8
 LOOP = 2.4
 N_FRAMES = 60
 CLOSED = 0.12
-ANCHOR = (32.0, 54.0)
+ANCHOR = SQUASH_ANCHOR
 
 
 def lerp_ease(from_v: float, to_v: float, start: float, end: float, t: float) -> float:
@@ -86,13 +90,6 @@ def pose(t: float) -> dict[str, float]:
     }
 
 
-def extract_inner(svg: str) -> tuple[str, str, str]:
-    body = re.search(r'<g id="body">\s*(.*?)\s*</g>', svg, re.S).group(1).strip()
-    left = re.search(r'<g id="eye-left"[^>]*>\s*(.*?)\s*</g>', svg, re.S).group(1).strip()
-    right = re.search(r'<g id="eye-right"[^>]*>\s*(.*?)\s*</g>', svg, re.S).group(1).strip()
-    return body, left, right
-
-
 def frame_svg(body: str, left: str, right: str, t: float) -> bytes:
     p = pose(t)
     ax, ay = ANCHOR
@@ -104,8 +101,9 @@ def frame_svg(body: str, left: str, right: str, t: float) -> bytes:
     )
     eyes = f'translate({p["lookX"]:.5f} 0)'
     b = p["blinkY"]
-    left_t = f"translate(25 33) scale(1 {b:.5f}) rotate(10) translate(-25 -33)"
-    right_t = f"translate(39 33) scale(1 {b:.5f}) rotate(10) translate(-39 -33)"
+    (lx, ly), (rx, ry) = eye_centers()
+    left_t = f"translate({lx} {ly}) scale(1 {b:.5f}) rotate(10) translate({-lx} {-ly})"
+    right_t = f"translate({rx} {ry}) scale(1 {b:.5f}) rotate(10) translate({-rx} {-ry})"
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="{vb}" width="{SIZE}" height="{SIZE}" fill="none">
   <g id="bot" transform="{bot}">
@@ -120,12 +118,11 @@ def frame_svg(body: str, left: str, right: str, t: float) -> bytes:
 
 
 def main() -> None:
-    if not SVG_SRC.is_file():
-        raise SystemExit(f"missing Ember SVG at {SVG_SRC}")
     FRAME_DIR.mkdir(parents=True, exist_ok=True)
     for old in FRAME_DIR.glob("*.png"):
         old.unlink()
-    body, left, right = extract_inner(SVG_SRC.read_text())
+    (lcx, lcy), (rcx, rcy) = eye_centers()
+    body, left, right = body_markup(), eye_markup(lcx, lcy), eye_markup(rcx, rcy)
     for i in range(N_FRAMES):
         t = i * LOOP / N_FRAMES
         png = cairosvg.svg2png(

@@ -22,6 +22,7 @@ from asset_paths import font_dir, grok_border_root
 MOCKUP_HTML = grok_border_root() / "src" / "mockup.html"
 APPROVED = grok_border_root() / "mockups" / "grok-border-glow-yellow.png"
 EMBER_FILL = (0xE2, 0x5C, 0x3A, 255)
+from ember_geometry import LOBES, eye_centers, EYE_W, EYE_H
 FONT_DIR = font_dir()
 
 # Keep in sync with GlowSpec / GlowStyle in Constants.swift
@@ -421,25 +422,21 @@ def draw_ember(size: int) -> Image.Image:
         box = ((cx - rx) * s, (cy - ry) * s, (cx + rx) * s, (cy + ry) * s)
         draw.ellipse(box, fill=fill)
 
-    for cx, cy, rx, ry in (
-        (20.0, 34.5, 16.2, 16.2),
-        (44.0, 34.5, 16.2, 16.2),
-        (32.0, 21.0, 15.2, 15.2),
-        (32.0, 38.5, 21.5, 15.5),
-    ):
+    for cx, cy, rx, ry in LOBES:
         ellipse(cx, cy, rx, ry, EMBER_FILL)
 
-    # Eyes: 7.4×15.8 capsules, tilted 10° clockwise around each centre.
+    # Eyes: 8.4×16.2 capsules, tilted 10° clockwise around each centre.
     def capsule(cx, cy):
         layer = Image.new("RGBA", (over, over), (0, 0, 0, 0))
         ld = ImageDraw.Draw(layer)
-        box = ((cx - 3.7) * s, (cy - 7.9) * s, (cx + 3.7) * s, (cy + 7.9) * s)
-        ld.rounded_rectangle(box, radius=3.7 * s, fill=(255, 255, 255, 255))
+        hw, hh = EYE_W / 2, EYE_H / 2
+        box = ((cx - hw) * s, (cy - hh) * s, (cx + hw) * s, (cy + hh) * s)
+        ld.rounded_rectangle(box, radius=hw * s, fill=(255, 255, 255, 255))
         # rotate around eye centre
         # PIL rotate is counter-clockwise, so 10° clockwise is -10.
         return layer.rotate(-10, resample=Image.Resampling.BICUBIC, center=(cx * s, cy * s))
 
-    for cx, cy in ((25.0, 33.0), (39.0, 33.0)):
+    for cx, cy in eye_centers():
         img = Image.alpha_composite(img, capsule(cx, cy))
 
     return img.resize((size, size), Image.Resampling.LANCZOS)

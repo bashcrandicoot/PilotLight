@@ -12,9 +12,12 @@ import cairosvg
 from PIL import Image
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from asset_paths import ember_svg
-
-EMBER_SVG = ember_svg()
+from ember_geometry import (
+    SQUASH_ANCHOR,
+    body_markup,
+    eye_centers,
+    eye_markup,
+)
 HAPPY_LOOP = 2.4
 HAPPY_CLOSED = 0.12
 
@@ -53,21 +56,20 @@ def happy_pose(t: float) -> dict:
 
 
 def draw_happy_ember(pixel_size: int, t: float) -> Image.Image:
-    svg_text = EMBER_SVG.read_text()
-    body = re.search(r'<g id="body">\s*(.*?)\s*</g>', svg_text, re.S).group(1).strip()
-    left = re.search(r'<g id="eye-left"[^>]*>\s*(.*?)\s*</g>', svg_text, re.S).group(1).strip()
-    right = re.search(r'<g id="eye-right"[^>]*>\s*(.*?)\s*</g>', svg_text, re.S).group(1).strip()
+    (lcx, lcy), (rcx, rcy) = eye_centers()
+    body, left, right = body_markup(), eye_markup(lcx, lcy), eye_markup(rcx, rcy)
     p = happy_pose(t)
     pad = 10
     vb = f"{-pad} {-pad} {64 + pad * 2} {64 + pad * 2}"
+    ax, ay = SQUASH_ANCHOR
     bot = (
-        f'translate(0 {p["bobY"]:.5f}) translate(32 54) rotate({p["tilt"]:.4f}) '
-        f'scale({p["scaleX"]:.6f} {p["scaleY"]:.6f}) translate(-32 -54)'
+        f'translate(0 {p["bobY"]:.5f}) translate({ax} {ay}) rotate({p["tilt"]:.4f}) '
+        f'scale({p["scaleX"]:.6f} {p["scaleY"]:.6f}) translate({-ax} {-ay})'
     )
     eyes = f'translate(0 {p["lookY"]:.5f})'
     b = p["blinkY"]
-    left_t = f"translate(25 33) scale(1 {b:.5f}) rotate(10) translate(-25 -33)"
-    right_t = f"translate(39 33) scale(1 {b:.5f}) rotate(10) translate(-39 -33)"
+    left_t = f"translate({lcx} {lcy}) scale(1 {b:.5f}) rotate(10) translate({-lcx} {-lcy})"
+    right_t = f"translate({rcx} {rcy}) scale(1 {b:.5f}) rotate(10) translate({-rcx} {-rcy})"
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>'
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vb}" '
