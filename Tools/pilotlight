@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# PilotLight CLI — toggle the working-border flag and, if needed, start the app.
+# ~/.grok-working is the flag. This script never uses sudo and never activates
+# the app (it starts it hidden with `open -g -j` when necessary).
+set -euo pipefail
+
+FLAG="${PILOTLIGHT_FLAG:-$HOME/.grok-working}"
+APP="${PILOTLIGHT_APP:-$HOME/Applications/PilotLight.app}"
+STALE_SECONDS="${PILOTLIGHT_STALE_SECONDS:-1200}"
+
+usage() {
+  cat <<'USAGE'
+Usage: pilotlight <command>
+
+  on              Show the working border (creates ~/.grok-working)
+  off             Hide the border (removes the flag)
+  status          Print whether the border should be shown
+  ping            Refresh the flag mtime so a long run does not go stale
+  run -- <cmd...> Turn the border on, run the command, always turn it off
+
+The flag is treated as stale (and the border hides) if it is older than
+20 minutes. Ping during long work.
+
+grok-border is an alias for this command.
+USAGE
+}
+
+flag_age_seconds() {
+  if [[ ! -e "$FLAG" ]]; then
+    echo ""
+    return 1
+  fi
+  local now mtime
+  now="$(date +%s)"
+  mtime="$(stat -f %m "$FLAG" 2>/dev/null || stat -c %Y "$FLAG")"
+  echo $((now - mtime))
+}
+
+format_age() {
+  local s="$1"
+  if (( s < 60 )); then
+    echo "${s}s"
+  elif (( s < 3600 )); then
+    echo "$((s / 60))m $((s % 60))s"
+  else
+    echo "$((s / 3600))h $((s % 3600 / 60))m"
+  fi
+}
+
+ensure_app() {
+  if pgrep -x PilotLight >/dev/null 2>&1; then
+    return 0
+  fi
+  if [[ -d "$APP" ]]; then
+    open -g -j -a "$APP"
+  fi
+}
+
+cmd_on() {
+  touch "$FLAG"
+  ensure_app
+  echo "on"
+}
+
+cmd_off() {
+  rm -f "$FLAG"
+  echo "off"
+}
+
+cmd_ping() {
+  if [[ ! -e "$FLAG" ]]; then
+    touch "$FLAG"
+  else
+    touch -c "$FLAG" 2>/dev/null || touch "$FLAG"
+  fi
+  ensure_app
+  local age
+  age="$(flag_age_seconds || true)"
+  echo "on (pinged, age $(format_age "${age:-0}"))"
+}
+
+cmd_status() {
+  if [[ ! -e "$FLAG" ]]; then
+    echo "off"
+    return 0
+  fi
+  local age
+  age="$(flag_age_seconds)"
+  if (( age >= STALE_SECONDS )); then
+    echo "stale (flag age $(format_age "$age"), hidden)"
+  else
+    echo "on (flag age $(format_age "$age"))"
+  fi
+}
+
+cmd_run() {
+  if [[ "${1:-}" == "--" ]]; then
+    shift
+  fi
+  if [[ $# -eq 0 ]]; then
+    echo "pilotlight run -- requires a command" >&2
+    exit 2
+  fi
+  cleanup() {
+    rm -f "$FLAG"
+  }
+  trap cleanup EXIT INT TERM HUP
+  touch "$FLAG"
+  ensure_app
+  "$@"
+}
+
+main() {
+  local cmd="${1:-}"
+  if [[ -z "$cmd" ]]; then
+    usage
+    exit 2
+  fi
+  shift || true
+  case "$cmd" in
+    on) cmd_on ;;
+    off) cmd_off ;;
+    ping) cmd_ping ;;
+    status) cmd_status ;;
+    run) cmd_run "$@" ;;
+    -h|--help|help) usage ;;
+    *)
+      echo "Unknown command: $cmd" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+}
+
+main "$@"

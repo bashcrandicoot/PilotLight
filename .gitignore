@@ -1,0 +1,15 @@
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
+__pycache__/
+*.pyc
+.swiftpm/
+.build/
+/build/
+/dist/
+/test-artifacts/
+xcuserdata/
+DerivedData/
+*.xcuserstate
